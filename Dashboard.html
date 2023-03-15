@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Page</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        #navbar {
+            background-color: teal;
+            display: flex;
+            justify-content: space-between;
+            color: white;
+            padding: 15px 30px;
+            align-items: center;
+
+        }
+
+        #navbar>div {
+            display: flex;
+            width: 40%;
+            justify-content: space-around;
+        }
+
+        #navbar>a {
+            color: white;
+            text-decoration: none;
+        }
+
+        #navbar p>a {
+            text-decoration: none;
+            color: white;
+            font-size: 22px;
+            font-weight: 500;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        table tr td,
+        th {
+            text-align: center;
+            padding: 5px;
+        }
+
+        #delete {
+            background-color: rgb(231, 77, 77);
+            color: white;
+            cursor: pointer;
+        }
+
+        #delete:hover {
+            background-color: red;
+        }
+
+        #vaccinate {
+            background-color: rgb(71, 170, 71);
+            color: white;
+            cursor: pointer;
+        }
+
+        #vaccinate:hover {
+            background-color: green;
+        }
+
+        select {
+            margin: 15px;
+            padding: 5px;
+            font-size: 1em;
+            background-color: rgb(131, 223, 223);
+            border-radius: 7px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="navbar">
+        <a href="./Index.html">
+            <h1>Masai Vaccination</h1>
+        </a>
+        <div>
+            <p><a href="./Register.html">Rigister</a></p>
+            <p><a href="./Dashboard.html">Dashboard</a></p>
+            <p><a href="./Vaccinated.html">Vaccinated</a></p>
+        </div>
+    </div>
+    <select name="" id="filterByVaccine">
+        <option value="">Filter By Vaccine</option>
+        <option value="Covishield">Covishield</option>
+        <option value="Covaxin">Covaxin</option>
+        <option value="Sputnik">Sputnik</option>
+    </select>
+    <select name="" id="sortByAge">
+        <option value="">Sort By Age</option>
+        <option value="h2l">Descending Order</option>
+        <option value="l2h">Ascending Order</option>
+    </select>
+    <select name="" id="filterByPriority">
+        <option value="">Filter by priority</option>
+        <option value="p0">p0</option>
+        <option value="p1">p1</option>
+        <option value="p2">p2</option>
+        <option value="p3">p3</option>
+    </select>
+    <table border 1>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Id</th>
+                <th>Designation</th>
+                <th>Priority</th>
+                <th>Vaccine</th>
+                <th>OTP</th>
+                <th>Vaccinate</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+</body>
+
+</html>
+<script>
+    let tbody = document.querySelector("tbody");
+    let filterByVaccine = document.getElementById("filterByVaccine");
+    let filterByPriority = document.getElementById("filterByPriority");
+    let sortByAge = document.getElementById("sortByAge");
+    let registrationData = JSON.parse(localStorage.getItem("registrationData")) || [];
+    let delete_data = JSON.parse(localStorage.getItem("delete-data")) || [];
+    showDataInTable(registrationData);
+    function showDataInTable(data) {
+        tbody.innerHTML = null;
+        data.forEach((element, index) => {
+            let tr = document.createElement("tr");
+            let name = document.createElement("td");
+            name.innerText = element.name;
+            let age = document.createElement("td");
+            age.innerText = element.age;
+            let id = document.createElement("td");
+            id.innerText = element.id;
+            let Designation = document.createElement("td");
+            Designation.innerText = element.designation;
+            let Priority = document.createElement("td");
+            Priority.innerText = element.priority;
+            let vaccine = document.createElement("td");
+            vaccine.innerText = element.vaccine;
+            let OTP = document.createElement("td");
+            const min = 1000;
+            const max = 9999;
+            OTP.innerText = Math.floor(Math.random() * (max - min + 1)) + min;
+            let Vaccinate = document.createElement("td");
+            Vaccinate.setAttribute("id", "vaccinate")
+            Vaccinate.innerText = "Vaccinate";
+            Vaccinate.addEventListener("click", () => {
+                let h = prompt(`${name.innerText} put your OTP here!`)
+                //console.log(OTP.innerText)
+                //console.log(h)
+                if (OTP.innerText == h) {
+                    let promise = new Promise((resolve, reject) => {
+
+                        setTimeout(() => {
+                            alert(`${name.innerText} Added to Queue`)
+                        }, 0)
+
+                        setTimeout(() => {
+                            alert(`Vaccinating ${vaccine.innerText}`)
+                        }, 5000)
+
+                        setTimeout(() => {
+                            alert(`${name.innerText} Vaccinated`)
+                        }, 10000)
+                        setTimeout(() => {
+                            DeleteData(data, element, index)
+                        }, 10500)
+                    })
+                }
+                else if (h) {
+                    alert("OTP is not valid. Please enter valid OTP")
+                }
+            })
+            let Delete = document.createElement("td");
+            Delete.setAttribute("id", "delete")
+            Delete.innerText = "Delete";
+            Delete.addEventListener("click", () => {
+                DeleteData(data, element, index)
+            })
+            tr.append(name, age, id, Designation, Priority, vaccine, OTP, Vaccinate, Delete);
+            tbody.append(tr);
+        })
+    }
+
+
+    function DeleteData(data, element, index) {
+        delete_data.push(element);
+        localStorage.setItem("delete-data", JSON.stringify(delete_data));
+        data.splice(index, 1);
+        localStorage.setItem("registrationData", JSON.stringify(registrationData));
+        showDataInTable(registrationData)
+    }
+
+    filterVaccine(registrationData);
+    filterProiroty(registrationData);
+    sortAge(registrationData);
+    function filterVaccine(data) {
+        filterByVaccine.addEventListener("change", () => {
+            //console.log(filterByVaccine.value);
+            let filterData = data.filter((element) => {
+                return element.vaccine == filterByVaccine.value;
+            })
+            //console.log(filterData)
+            showDataInTable(filterData)
+            filterProiroty(filterData);
+            sortAge(filterData)
+        })
+    }
+
+    function filterProiroty(data) {
+        filterByPriority.addEventListener("change", () => {
+            console.log(filterByPriority);
+            let filterData = data.filter(element => element.priority == filterByPriority.value)
+            showDataInTable(filterData);
+            sortAge(filterData)
+            filterVaccine(filterData)
+        })
+    }
+
+    function sortAge(data) {
+        sortByAge.addEventListener("change", () => {
+            console.log(sortByAge.value)
+            if (sortByAge.value == "h2l") {
+                data.sort((a, b) => b.age - a.age);
+                showDataInTable(data);
+                showDataInTable(data);
+                filterVaccine(data)
+            } else if (sortByAge.value == "l2h") {
+                data.sort((a, b) => a.age - b.age);
+                showDataInTable(data);
+                showDataInTable(data);
+                filterVaccine(data)
+            }
+        })
+
+    }
+</script>
